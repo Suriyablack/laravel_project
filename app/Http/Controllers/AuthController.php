@@ -7,7 +7,6 @@ use App\Http\Requests\LoginRequest;
 use App\Models\Employees;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Facades\JWTProvider;
 
 class AuthController extends Controller
@@ -31,9 +30,9 @@ class AuthController extends Controller
 
         $user = employees::where('email', $email)->first();
 
-        if ($user && Hash::check($password, $user->password)) {
+        if ($user && Hash::check($password, $user->password)) { //compare the passowrd 
 
-            $token = $this->generateToken($user);
+            $token = $this->generateToken($user); //generate a token
             return response()->json(['token' => $token], 201);
         } else {
             return response()->json(['error' => 'Invalid credentials'], 404);
@@ -45,7 +44,7 @@ class AuthController extends Controller
         $secretKey = 'XAFB5vpQGuEgQjhZLwLlHtybRuIDhHvtFNuHVtbsvNYYuCq3RHgK6zyIj63uZulA';
 
         $payload = [
-            'iss' => 'Postman api',
+            'iss' => 'mysql',
             'sub' => $user->id,
             'iat' => time(),
             'exp' => time() + 60 * 60,
@@ -69,9 +68,9 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid token']);
         }
 
-        $userId = $payload;
+        $userId = $payload['sub'];
 
-        $userData = Employees::find($userId);
+        $userData = Employees::where('id', $userId)->first();
 
         if (!$userData) {
             return response()->json(['error' => 'User Not Found']);

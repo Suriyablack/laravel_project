@@ -16,6 +16,9 @@ class JwtMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        try{
+            
+        }
         return $next($request);
     }
 }
