@@ -5,19 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Models\Employees;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controller\JWT;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Facades\JWTProvider;
 
 class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        Employees ::create([
+        Employees::create([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
             'password' => bcrypt($request->get('password')),
-            'active' => $request->get('active')
+            'active' => $request->get('active'),
+
         ]);
         return response()->json(['Data' => 'Data Insertes successully'], 201);
     }
@@ -30,6 +32,7 @@ class AuthController extends Controller
         $user = employees::where('email', $email)->first();
 
         if ($user && Hash::check($password, $user->password)) {
+
             $token = $this->generateToken($user);
             return response()->json(['token' => $token], 201);
         } else {
@@ -45,13 +48,34 @@ class AuthController extends Controller
             'iss' => 'Postman api',
             'sub' => $user->id,
             'iat' => time(),
-            'exp' => time() + 60 * 60, 
+            'exp' => time() + 60 * 60,
         ];
 
-        // Generate token
         $token = JWTProvider::encode($payload, $secretKey, 'HS256');
+
 
         return $token;
     }
-}
 
+    public function userInfo(Request $request)
+    {
+        $token = $request->header('authorization');
+
+        try {
+
+            $payload = JWTProvider::decode($token);
+        } catch (\Exception $e) {
+
+            return response()->json(['error' => 'Invalid token']);
+        }
+
+        $userId = $payload;
+
+        $userData = Employees::find($userId);
+
+        if (!$userData) {
+            return response()->json(['error' => 'User Not Found']);
+        }
+        return response()->json(['data' => $userData]);
+    }
+}

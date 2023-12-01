@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Passport\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 
 class Employees extends Model
 {
-    use HasFactory;
+     use HasApiTokens, HasFactory, Notifiable;
 
-    Protected $fillable = [
-        'name', 'email', 'password', 'active' 
+    protected $fillable = [
+        'name', 'email', 'password', 'active'
     ];
-        
 }
