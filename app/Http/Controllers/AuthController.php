@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
-use App\Models\Employees;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTProvider;
@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        Employees::create([
+        Employee::create([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
             'password' => bcrypt($request->get('password')),
@@ -28,11 +28,11 @@ class AuthController extends Controller
         $email = $request->get('email');
         $password = $request->get('password');
 
-        $user = employees::where('email', $email)->first();
+        $user = Employee::where('email', $email)->first();
 
-        if ($user && Hash::check($password, $user->password)) { //compare the passowrd 
+        if ($user && Hash::check($password, $user->password)) { 
 
-            $token = $this->generateToken($user); //generate a token
+            $token = $this->generateToken($user);
             return response()->json(['token' => $token], 201);
         } else {
             return response()->json(['error' => 'Invalid credentials'], 404);
@@ -70,7 +70,7 @@ class AuthController extends Controller
 
         $userId = $payload['sub'];
 
-        $userData = Employees::where('id', $userId)->first();
+        $userData = Employee::where('id', $userId)->first();
 
         if (!$userData) {
             return response()->json(['error' => 'User Not Found']);
